@@ -27,5 +27,5 @@ module.exports = logger;
  * 1. print log to the terminal
  * 2. writes logs to a file
  * 3. sends logs to a remote HTTP server
- * 4. sends logs to any writable steram
+ * 4. sends logs to any writable stream
  */
