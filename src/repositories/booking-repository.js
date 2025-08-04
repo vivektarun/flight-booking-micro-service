@@ -12,6 +12,7 @@ class BookingRepository extends CrudRepository {
         return response;
     }
 
+    //Override get function
     async get(data, transaction) {
         const response = await this.model.findByPk(data, { transaction: transaction });
         if (!response) {
@@ -20,6 +21,7 @@ class BookingRepository extends CrudRepository {
         return response;
     }
 
+    //Override update function
     async update(id, data, transaction) {
         const response = await this.model.update(data, {
             where: {id : id},
