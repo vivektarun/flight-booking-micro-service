@@ -1,5 +1,8 @@
 const express = require('express');
-const PORT = 3002
+
+const { ServerConfig } = require('./config');
+const apiRoutes = require('./routes'); // By default index.js is required.
+const CRON = require('./utils/common/cron-jobs'); // By default index.js is required.
 
 const app = express();
 app.use(express.json());
@@ -10,6 +13,9 @@ app.get('/', (req, res) => {
     res.send("service is up");
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`)
+app.use('/api', apiRoutes);
+
+app.listen(ServerConfig.PORT, () => {
+    console.log(`Server running on http://localhost:${ServerConfig.PORT}`);
+    CRON();
 })
