@@ -1,57 +1,150 @@
-This is a base node js project template, which anyone can use as it has been prepared, by keeping some of the most important code principles and project management recommendations. Feel free to change anything. 
+# Flight Booking Microservice
 
+A Node.js microservice for managing flight bookings, built with Express, Sequelize, and MySQL. This service handles booking creation, payment processing, and seat management, and is designed to be integrated with a larger flight management system.
 
-`src` -> Inside the src folder all the actual source code regarding the project will reside, this will not include any kind of tests. (You might want to make separate tests folder)
+---
 
-Lets take a look inside the `src` folder
+## Table of Contents
 
- - `config` -> In this folder anything and everything regarding any configurations or setup of a library or module will be done. For example: setting up `dotenv` so that we can use the environment variables anywhere in a cleaner fashion, this is done in the `server-config.js`. One more example can be to setup you logging library that can help you to prepare meaningful logs, so configuration for this library should also be done here. 
+- [Flight Booking Microservice](#flight-booking-microservice)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Project Structure](#project-structure)
+  - [Setup Instructions](#setup-instructions)
+  - [Database Setup \& Relations](#database-setup--relations)
+  - [API Endpoints](#api-endpoints)
+  - [Environment Variables](#environment-variables)
+  - [Logging](#logging)
+  - [Cron Jobs](#cron-jobs)
+  - [Contributing](#contributing)
+  - [License](#license)
 
- - `routes` -> In the routes folder, we register a route and the corresponding middleware and controllers to it. 
+---
 
- - `middlewares` -> they are just going to intercept the incoming requests where we can write our validators, authenticators etc. 
+## Features
 
- - `controllers` -> they are kind of the last middlewares as post them you call you business layer to execute the business logic. In controllers we just receive the incoming requests and data and then pass it to the business layer, and once business layer returns an output, we structure the API response in controllers and send the output. 
+- Create and manage flight bookings
+- Payment processing with idempotency
+- Automatic cancellation of expired bookings
+- RESTful API endpoints
+- Structured logging with Winston
+- Sequelize ORM for database operations
 
- - `repositories` -> this folder contains all the logic using which we interact the DB by writing queries, all the raw queries or ORM queries will go here.
+---
 
- - `services` -> contains the business logic and interacts with repositories for data from the database
+## Project Structure
 
- - `utils` -> contains helper methods, error classes etc.
+```
+src/
+  config/         # Configuration files (env, logger, server)
+  controllers/    # API controllers
+  middlewares/    # Express middlewares
+  migrations/     # Sequelize migrations
+  models/         # Sequelize models
+  repositories/   # Data access layer
+  routes/         # API route definitions
+  seeders/        # Database seeders
+  services/       # Business logic
+  utils/          # Helpers, error classes, enums, cron jobs
+logs/             # Application logs
+.env              # Environment variables
+```
 
-### Setup the project
+---
 
- - Download this template from github and open it in your favorite text editor. 
- - Go inside the folder path and execute the following command:
-  ```
-  npm install
-  ```
- - In the root directory create a `.env` file and add the following env variables
-    ```
-        PORT=<port number of your choice>
-    ```
-    ex: 
-    ```
-        PORT=3000
-    ```
- - go inside the `src` folder and execute the following command:
-    ```
+## Setup Instructions
 
-    npx sequelize init:config
+1. **Clone the Repository**
+   ```sh
+   git clone <your-repo-url>
+   cd FlightBookingMicroService
+   ```
 
+2. **Install Dependencies**
+   ```sh
+   npm install
+   ```
 
-    npx sequelize init:migrations
+3. **Configure Environment Variables**
+   Create a `.env` file in the root directory:
+   ```
+   PORT=4000
+   FLIGHT_SERVICE="http://localhost:3000"
+   ```
 
+4. **Database Setup**
+   - Ensure you have MySQL installed and running.
+   - Create a database named `Flights` (or update `src/config/config.json` for your DB name).
+   - Update `src/config/config.json` with your MySQL credentials.
 
-    npx sequelize init:seeders
+5. **Run Migrations**
+   ```sh
+   npx sequelize-cli db:migrate
+   ```
 
-    ```
- - By executing the above command you will get migrations and seeders folder along with a config.json inside the config folder. 
- - If you're setting up your development environment, then write the username of your db, password of your db and in dialect mention whatever db you are using for ex: mysql, mariadb etc
- - If you're setting up test or prod environment, make sure you also replace the host with the hosted db url.
+6. **(Optional) Seed the Database**
+   ```sh
+   npx sequelize-cli db:seed:all
+   ```
 
- - To run the server execute
+7. **Start the Server**
+   ```sh
+   npm run dev
+   ```
+   The server will run at `http://localhost:4000` (or your configured port).
 
- ```
- npm run dev
- ```
+---
+
+## Database Setup & Relations
+
+- **Model:** `Booking` ([src/models/booking.js](src/models/booking.js))
+  - Fields: `flightId`, `userId`, `status`, `noOfSeats`, `totalCost`, `createdAt`, `updatedAt`
+  - Status values: `booked`, `cancelled`, `initiated`, `pending`
+  - Each booking is linked to a flight (`flightId`) and a user (`userId`).
+  - The migration ([src/migrations/20250803125121-create-booking.js](src/migrations/20250803125121-create-booking.js)) creates the `Bookings` table.
+
+- **Relations:**
+  - This service expects a separate Flight service (see `FLIGHT_SERVICE` env variable).
+  - Bookings reference flights by `flightId` and users by `userId`.
+  - Seat management is handled via API calls to the Flight service.
+
+---
+
+## API Endpoints
+
+- `GET /api/v1/info` — Service health check
+- `POST /api/v1/bookings` — Create a booking
+- `POST /api/v1/bookings/payments` — Make payment for a booking
+
+See [src/routes/v1/booking-routes.js](src/routes/v1/booking-routes.js) for details.
+
+---
+
+## Environment Variables
+
+- `PORT`: Port for the Express server
+- `FLIGHT_SERVICE`: Base URL for the Flight service
+
+---
+
+## Logging
+
+- Logs are written to the terminal and to `logs/combined.log` using Winston ([src/config/logger-config.js](src/config/logger-config.js)).
+
+---
+
+## Cron Jobs
+
+- Automatic cancellation of old bookings runs every 20 minutes ([src/utils/common/cron-jobs.js](src/utils/common/cron-jobs.js)).
+
+---
+
+## Contributing
+
+Feel free to fork, open issues, or submit pull requests. For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+## License
+
+ISC
