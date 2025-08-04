@@ -6,6 +6,7 @@ const { ServerConfig } = require('../config/')
 const db = require('../models');
 const AppError = require('../utils/errors/app-error');
 const { StatusCodes } = require('http-status-codes');
+const { response } = require('express');
 
 const bookingRepository = new BookingRepository();
 
@@ -86,6 +87,7 @@ async function makePayment(data) {
     }
 }
 
+//Use in makePayments function
 async function cancelBooking(bookingId) {
     const transaction = await db.sequelize.transaction();
     try {
@@ -113,7 +115,19 @@ async function cancelBooking(bookingId) {
     }
 }
 
+//Use for Cron jobs.
+async function cancelOldBookings() {
+    try {
+        const time = new Date(Date.now() - 1000 * 300);
+        const response = await bookingRepository.cancelOldBooking(time);
+        return response;
+    } catch(error) {
+        throw error;
+    }
+}
+
 module.exports = {
     createBooking,
     makePayment,
+    cancelOldBookings,
 };
