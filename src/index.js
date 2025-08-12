@@ -30,8 +30,8 @@ app.get('/', (req, res) => {
 
 app.use('/api', apiRoutes);
 
-app.listen(ServerConfig.PORT, () => {
+app.listen(ServerConfig.PORT, async () => {
     console.log(`Server running on http://localhost:${ServerConfig.PORT}`);
     CRON();
-    connectQueue();
+    await connectQueue();
 })
