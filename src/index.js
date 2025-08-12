@@ -1,21 +1,6 @@
 const express = require('express');
-const amqplib = require('amqplib');
 
-async function connectQueue() {
-    try {
-        const connection = await amqplib.connect("amqp://localhost");
-        const channel = await connection.createChannel();
-
-        await channel.assertQueue('noti-queue');
-        setInterval(() => {
-            channel.sendToQueue("noti-queue", Buffer.from("Something to do"));
-        }, 1000);
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const { ServerConfig } = require('./config');
+const { ServerConfig, Queue } = require('./config');
 const apiRoutes = require('./routes'); // By default index.js is required.
 const CRON = require('./utils/common/cron-jobs'); // By default index.js is required.
 
@@ -33,5 +18,5 @@ app.use('/api', apiRoutes);
 app.listen(ServerConfig.PORT, async () => {
     console.log(`Server running on http://localhost:${ServerConfig.PORT}`);
     CRON();
-    await connectQueue();
+    await Queue.connectQueue();
 })
