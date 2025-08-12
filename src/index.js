@@ -6,12 +6,12 @@ async function connectQueue() {
         const connection = await amqplib.connect("amqp://localhost");
         const channel = await connection.createChannel();
 
-        await channel.assertQueue('noti-quque');
+        await channel.assertQueue('noti-queue');
         setInterval(() => {
             channel.sendToQueue("noti-queue", Buffer.from("Something to do"));
         }, 1000);
     } catch (error) {
-        console.log;
+        console.log(error);
     }
 }
 
