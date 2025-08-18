@@ -2,11 +2,10 @@ const axios = require('axios');
 const { Enums } = require('../utils/common');
 const { BOOKED, CANCELLED, INITIATED, PENDING } = Enums.BOOKING_STATUS;
 const { BookingRepository } = require('../repositories');
-const { ServerConfig } = require('../config/')
+const { ServerConfig, Queue } = require('../config/')
 const db = require('../models');
 const AppError = require('../utils/errors/app-error');
 const { StatusCodes } = require('http-status-codes');
-const { response } = require('express');
 
 const bookingRepository = new BookingRepository();
 
@@ -31,10 +30,9 @@ async function createBooking(data) {
         await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flight/${data.flightId}/seats`, {
             seats: data.noOfSeats
         });
-
+        // ----------- No failure point after the  patch request-------------
         await transaction.commit();
         return booking;
-
     } catch (error) {
         await transaction.rollback();
         throw error;
@@ -59,7 +57,7 @@ async function makePayment(data) {
         const currentTime = new Date();
 
         //Constraint on time.
-        if(currentTime - bookingTime > 300000) {
+        if(currentTime - bookingTime > 1000 * 60 * 5) {
             // [TASK] After canceling the booking bring all the seats back to flight.
             await cancelBooking(data.bookingId);
             throw new AppError("The booking has expired", StatusCodes.BAD_REQUEST);
@@ -79,8 +77,14 @@ async function makePayment(data) {
         const booking = await bookingRepository.update(data.bookingId, {status : BOOKED}, transaction);
 
         await transaction.commit();
-        return booking;
 
+        Queue.sendData({
+            recepientEmail: `vivektarun1234@gmail.com`,
+            subject: `Flight booked`,
+            text: `Booking successfully done for the flight ${flightData.flightNumber}`
+        });
+        
+        return booking;
     } catch (error) {
         await transaction.rollback();
         throw error;
@@ -118,7 +122,7 @@ async function cancelBooking(bookingId) {
 //Use for Cron jobs.
 async function cancelOldBookings() {
     try {
-        const time = new Date(Date.now() - 1000 * 300);
+        const time = new Date(Date.now() - 1000 * 60 * 5);
         const response = await bookingRepository.cancelOldBooking(time);
         return response;
     } catch(error) {

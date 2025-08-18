@@ -1,150 +1,80 @@
-# Flight Booking Microservice
+# ✈️ Advanced Microservices-based Airline Booking System
 
-A Node.js microservice for managing flight bookings, built with Express, Sequelize, and MySQL. This service handles booking creation, payment processing, and seat management, and is designed to be integrated with a larger flight management system.
-
----
-
-## Table of Contents
-
-- [Flight Booking Microservice](#flight-booking-microservice)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Project Structure](#project-structure)
-  - [Setup Instructions](#setup-instructions)
-  - [Database Setup \& Relations](#database-setup--relations)
-  - [API Endpoints](#api-endpoints)
-  - [Environment Variables](#environment-variables)
-  - [Logging](#logging)
-  - [Cron Jobs](#cron-jobs)
-  - [Contributing](#contributing)
-  - [License](#license)
+![Project Banner](./assets/banner.svg)
 
 ---
 
-## Features
+## 📖 Overview
+The **Airline Booking System** is a **microservices-based, highly scalable, and distributed application** designed to handle airline reservations with **high availability** and **fault tolerance**.  
 
-- Create and manage flight bookings
-- Payment processing with idempotency
-- Automatic cancellation of expired bookings
-- RESTful API endpoints
-- Structured logging with Winston
-- Sequelize ORM for database operations
+It is deployed on **AWS** with **auto-scaling** and **load balancing**, ensuring seamless performance under heavy traffic.
 
 ---
 
-## Project Structure
-
-```
-src/
-  config/         # Configuration files (env, logger, server)
-  controllers/    # API controllers
-  middlewares/    # Express middlewares
-  migrations/     # Sequelize migrations
-  models/         # Sequelize models
-  repositories/   # Data access layer
-  routes/         # API route definitions
-  seeders/        # Database seeders
-  services/       # Business logic
-  utils/          # Helpers, error classes, enums, cron jobs
-logs/             # Application logs
-.env              # Environment variables
-```
+## 🏗️ System Architecture
+- **Microservices Architecture & Scalability**  
+  Architected using **independent services** for flights, bookings, notifications, and authentication.  
+- **Flight Management Service**  
+  Handles CRUD operations for flights with robust **SQL migrations** for database versioning.  
+- **User Authentication Service**  
+  Secured with **JWT tokens** and **bcrypt password encryption**.  
+- **Booking Service with Concurrency Control**  
+  Implements **seat selection** with **transactions and locks** to ensure data integrity.  
+- **API Gateway & Rate Limiting**  
+  Routes requests, acts as a **reverse proxy**, and manages traffic with **rate limiting**.  
+- **Notification Service with RabbitMQ**  
+  Manages **async notifications** with **message queues** for reliability.  
 
 ---
 
-## Setup Instructions
-
-1. **Clone the Repository**
-   ```sh
-   git clone <your-repo-url>
-   cd FlightBookingMicroService
-   ```
-
-2. **Install Dependencies**
-   ```sh
-   npm install
-   ```
-
-3. **Configure Environment Variables**
-   Create a `.env` file in the root directory:
-   ```
-   PORT=4000
-   FLIGHT_SERVICE="http://localhost:3000"
-   ```
-
-4. **Database Setup**
-   - Ensure you have MySQL installed and running.
-   - Create a database named `Flights` (or update `src/config/config.json` for your DB name).
-   - Update `src/config/config.json` with your MySQL credentials.
-
-5. **Run Migrations**
-   ```sh
-   npx sequelize-cli db:migrate
-   ```
-
-6. **(Optional) Seed the Database**
-   ```sh
-   npx sequelize-cli db:seed:all
-   ```
-
-7. **Start the Server**
-   ```sh
-   npm run dev
-   ```
-   The server will run at `http://localhost:4000` (or your configured port).
+## 🗂️ Microservices Repositories
+- ✈️ [Flight Service](https://github.com/vivektarun/flight-flights-micro-service)  
+- 🧾 [Booking Service](https://github.com/vivektarun/flight-booking-micro-service)  
+- 🔐 [API Gateway & Authentication Service](https://github.com/vivektarun/flight-Auth-micro-service)  
+- 📩 [Notification Service](https://github.com/vivektarun/flight-notification-micro-service)  
 
 ---
 
-## Database Setup & Relations
-
-- **Model:** `Booking` ([src/models/booking.js](src/models/booking.js))
-  - Fields: `flightId`, `userId`, `status`, `noOfSeats`, `totalCost`, `createdAt`, `updatedAt`
-  - Status values: `booked`, `cancelled`, `initiated`, `pending`
-  - Each booking is linked to a flight (`flightId`) and a user (`userId`).
-  - The migration ([src/migrations/20250803125121-create-booking.js](src/migrations/20250803125121-create-booking.js)) creates the `Bookings` table.
-
-- **Relations:**
-  - This service expects a separate Flight service (see `FLIGHT_SERVICE` env variable).
-  - Bookings reference flights by `flightId` and users by `userId`.
-  - Seat management is handled via API calls to the Flight service.
+## 🗄️ Database Design
+📊 [View Database Diagram](https://dbdocs.io/vivektarun1234/Flight-project-database?view=relationships)
 
 ---
 
-## API Endpoints
-
-- `GET /api/v1/info` — Service health check
-- `POST /api/v1/bookings` — Create a booking
-- `POST /api/v1/bookings/payments` — Make payment for a booking
-
-See [src/routes/v1/booking-routes.js](src/routes/v1/booking-routes.js) for details.
+## 📚 Documentation
+The project is fully documented with **MkDocs**.  
+👉 [View Project Documentation](https://vivektarun.github.io/flight-project-docs/)
 
 ---
 
-## Environment Variables
-
-- `PORT`: Port for the Express server
-- `FLIGHT_SERVICE`: Base URL for the Flight service
-
----
-
-## Logging
-
-- Logs are written to the terminal and to `logs/combined.log` using Winston ([src/config/logger-config.js](src/config/logger-config.js)).
+## 🚀 Features
+- ✅ Scalable Microservices Architecture  
+- ✅ Secure Authentication with JWT + bcrypt  
+- ✅ Robust Booking with Concurrency Control  
+- ✅ Distributed Messaging with RabbitMQ  
+- ✅ API Gateway with Rate Limiting  
+- ✅ AWS Deployment with Auto-Scaling & Load Balancing  
 
 ---
 
-## Cron Jobs
-
-- Automatic cancellation of old bookings runs every 20 minutes ([src/utils/common/cron-jobs.js](src/utils/common/cron-jobs.js)).
-
----
-
-## Contributing
-
-Feel free to fork, open issues, or submit pull requests. For major changes, please open an issue first to discuss what you would like to change.
+## ⚡ Tech Stack
+- **Backend:** Node.js, Express  
+- **Database:** MySQL / PostgreSQL  
+- **Messaging Queue:** RabbitMQ  
+- **Authentication:** JWT, bcrypt  
+- **Deployment:** AWS (EC2, Load Balancer, Auto Scaling)  
+- **Documentation:** MkDocs  
 
 ---
 
-## License
+## 📌 Project Status
+This project is under active development and continues to evolve with **new features and improvements**.  
 
-ISC
+---
+
+## 🤝 Contributing
+Contributions are welcome! Please open an issue or submit a pull request for suggestions and improvements.
+
+---
+
+## 📜 License
+This project is licensed under the **MIT License**.
